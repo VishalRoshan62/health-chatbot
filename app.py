@@ -1,18 +1,11 @@
 from flask import Flask, request, jsonify
 import openai
-import os
+from chatbot_config import SYSTEM_PROMPT, MODEL_NAME, initialize_openai
 
-# Set your OpenAI API key
-openai.api_key = "your-openai-api-key"
+# Initialize API
+initialize_openai()
 
 app = Flask(__name__)
-
-# System prompt to keep responses health-focused
-SYSTEM_PROMPT = """
-You are HealthBot, a helpful and knowledgeable healthcare assistant. 
-You provide safe, non-diagnostic advice about symptoms, wellness, healthy habits, and when to see a doctor.
-Do not give medical diagnoses or prescriptions.
-"""
 
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -21,9 +14,8 @@ def chat():
         return jsonify({"error": "No message provided"}), 400
 
     try:
-        # Call OpenAI API
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # or "gpt-4" if available
+            model=MODEL_NAME,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_input}
@@ -37,6 +29,5 @@ def chat():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Run the Flask app
 if __name__ == '__main__':
     app.run(debug=True)
