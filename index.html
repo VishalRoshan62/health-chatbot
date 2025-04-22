@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HealthBot - Your AI Health Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f7ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-top: 20px;
+    }
+    .chatbox {
+      width: 90%;
+      max-width: 600px;
+      height: 70vh;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background: #fff;
+      padding: 20px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    .message {
+      margin: 10px 0;
+    }
+    .user {
+      text-align: right;
+      color: #2c3e50;
+    }
+    .bot {
+      text-align: left;
+      color: #007BFF;
+    }
+    .input-box {
+      display: flex;
+      width: 90%;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px 0 0 5px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>💬 HealthBot</h1>
+  <div class="chatbox" id="chatbox"></div>
+  <div class="input-box">
+    <input type="text" id="userInput" placeholder="Type your health question...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const inputField = document.getElementById("userInput");
+      const message = inputField.value.trim();
+      if (!message) return;
+
+      addMessage(message, "user");
+      inputField.value = "";
+
+      try {
+        const response = await fetch("http://localhost:5000/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+        const data = await response.json();
+        addMessage(data.response, "bot");
+      } catch (error) {
+        addMessage("Error contacting HealthBot. Please try again later.", "bot");
+        console.error("Error:", error);
+      }
+    }
+
+    function addMessage(text, sender) {
+      const chatbox = document.getElementById("chatbox");
+      const messageElem = document.createElement("div");
+      messageElem.className = `message ${sender}`;
+      messageElem.textContent = text;
+      chatbox.appendChild(messageElem);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
